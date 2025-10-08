@@ -1,21 +1,23 @@
-pipeline{
+pipeline {
     agent any
-    stages{
-        stage('build'){
-         steps{
-            script{
-                ls
-                echo "this is builed stage"
+
+    stages {
+        stage('build') {
+            steps {
+                script {
+                    sh 'ls'
+                    echo "this is build stage"
+                }
             }
-         }
         }
-        stage('test'){
-          steps{
-            script{
-                pwd
-                echo "this is test stage"
+
+        stage('test') {
+            steps {
+                script {
+                    sh 'pwd'
+                    echo "this is test stage"
+                }
             }
-          }
         }
     }
 }
