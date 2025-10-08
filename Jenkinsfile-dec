@@ -2,16 +2,20 @@ pipeline{
     agent any
     stages{
         stage('build'){
+         steps{
             script{
                 ls
                 echo "this is builed stage"
             }
+         }
         }
         stage('test'){
+          steps{
             script{
                 pwd
                 echo "this is test stage"
             }
+          }
         }
     }
 }
