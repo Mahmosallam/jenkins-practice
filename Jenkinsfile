@@ -1,7 +1,12 @@
 node {
-    stage('Clone Repo') {
-        git branch: 'main', url: 'https://github.com/Mahmosallam/jenkins-practice.git'
-    }
+    // stage('Clone Repo') {
+    //     git branch: 'main', url: 'https://github.com/Mahmosallam/jenkins-practice.git'
+    // }
+    stage('Checkout') {
+    echo "Pulling code from Git repository..."
+    checkout scm
+     }
+
 
     stage('Build') {
         try {
