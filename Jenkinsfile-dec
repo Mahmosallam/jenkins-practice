@@ -4,20 +4,18 @@ pipeline {
     stages {
         stage('build') {
             steps {
-                script {
                     sh 'ls'
                     echo "this is build stage"
-                }
+                
             }
         }
 
         stage('test') {
             steps {
-                script {
                     sh 'pwd'
                     echo "this is test stage"
                 }
             }
         }
     }
-}
+
