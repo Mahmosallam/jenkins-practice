@@ -1,21 +1,41 @@
 pipeline {
-    agent any
+    agent { label 'slave-1' }
 
     stages {
         stage('build') {
             steps {
-                    sh 'ls'
-                    echo "this is build stage"
-                
+                sh 'ls'
+                echo "this is build stage"
+                sh 'mvn clean package'
             }
         }
 
         stage('test') {
             steps {
-                    sh 'pwd'
-                    echo "this is test stage"
-                }
+                sh 'pwd'
+                sh 'ls'
+                echo "this is test stage"
+                sh 'java -jar target/my-app-1.0-SNAPSHOT.jar'
             }
         }
     }
 
+    post {
+        success {
+            slackSend (
+                channel: '#jenkins-ci',
+                message: "Build Success - ${env.JOB_NAME} ${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)",
+                teamDomain: 'jenkinstest-xxj7763',
+                tokenCredentialId: 'slack-notificate'
+            )
+        }
+        failure {
+            slackSend (
+                channel: '#jenkins-ci',
+                message: "Build Failed - ${env.JOB_NAME} ${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)",
+                teamDomain: 'jenkinstest-xxj7763',
+                tokenCredentialId: 'slack-notificate'
+            )
+        }
+    }
+}
