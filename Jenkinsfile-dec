@@ -1,6 +1,7 @@
 pipeline {
     // agent { label 'slave-1' }
     agent any
+    tools {maven 'mvn398'}
 
     stages {
         stage('build') {
