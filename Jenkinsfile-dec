@@ -1,20 +1,25 @@
 pipeline {
-    agent { label 'slave-1' }
+    // agent { label 'slave-1' }
+    agent any
 
     stages {
         stage('build') {
             steps {
-                sh 'ls'
                 echo "this is build stage"
-                sh 'mvn clean package'
+                sh 'mvn clean package -DskipTests'
             }
         }
 
         stage('test') {
             steps {
-                sh 'pwd'
-                sh 'ls'
                 echo "this is test stage"
+                sh 'mvn test'
+            }
+        }
+
+        stage('run') {
+            steps {
+                echo "this is run stage"
                 sh 'java -jar target/my-app-1.0-SNAPSHOT.jar'
             }
         }
