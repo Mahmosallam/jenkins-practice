@@ -1,14 +1,9 @@
 pipeline {
-    // agent { label 'slave-1' } test from 
+    // agent { label 'slave-1' } test from wwww
     agent any
     tools {maven 'mvn398'}
 
     stages {
-        stage('Clean Workspace') {
-            steps {
-                cleanWs()  
-            }
-        }
         stage('build') {
             steps {
                 echo "this is build stage"
