@@ -4,6 +4,11 @@ pipeline {
     tools {maven 'mvn398'}
 
     stages {
+        stage('Clean Workspace') {
+            steps {
+                cleanWs()  
+            }
+        }
         stage('build') {
             steps {
                 echo "this is build stage"
