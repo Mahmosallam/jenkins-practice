@@ -4,23 +4,6 @@ pipeline {
     tools {maven 'mvn398'}
 
     stages {
-        stage('Checkout') {
-            steps {
-                script {
-                    // Check if this is a PR build or normal branch build
-                    if (env.ghprbPullId) {
-                        echo "This is a Pull Request build - PR #${env.ghprbPullId}"
-                        echo "Source Branch: ${env.ghprbSourceBranch}"
-                        echo "Target Branch: ${env.ghprbTargetBranch}"
-                    } else {
-                        echo "This is a normal branch build"
-                        echo "Branch: ${env.BRANCH_NAME ?: env.GIT_BRANCH}"
-                    }
-                }
-                checkout scm
-            }
-        }
-        
         stage('build') {
             steps {
                 echo "this is build stage"
