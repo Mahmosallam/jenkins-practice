@@ -42,7 +42,7 @@ pipeline {
     post {
         success {
             slackSend (
-                channel: '#aws-jenkins',
+                channel: '#jenkins-ci',
                 message: "Build Success - ${env.JOB_NAME} ${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)",
                 teamDomain: 'jenkinstest-xxj7763',
                 tokenCredentialId: 'slack-notificate'
@@ -50,7 +50,7 @@ pipeline {
         }
         failure {
             slackSend (
-                channel: '#aws-jenkins',
+                channel: '#jenkins-ci',
                 message: "Build Failed - ${env.JOB_NAME} ${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)",
                 teamDomain: 'jenkinstest-xxj7763',
                 tokenCredentialId: 'slack-notificate'
