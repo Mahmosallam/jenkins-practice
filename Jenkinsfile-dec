@@ -26,15 +26,16 @@ pipeline {
         }
 
         stage('login and push') {
-            steps {
-                echo "this is login and push stage"
-                withCredentials([usernamePassword(credentialsId: 'docker-hup', passwordVariable: 'pass', usernameVariable: 'user')]) {
-                    sh 'echo $pass | docker login -u $user --password-stdin'
-                    sh 'docker tag java-test $user/java-test'
-                    sh 'docker push $user/java-test'}
-    
-            }
+           steps {
+               echo "this is login and push stage"
+               withCredentials([usernamePassword(credentialsId: 'docker-hup', passwordVariable: 'pass', usernameVariable: 'user')]) {
+                sh "echo ${pass} | docker login -u ${user} --password-stdin"
+                sh "docker tag java-test ${user}/java-test"
+                sh "docker push ${user}/java-test"
         }
+    }
+}
+
         
         }
     }
