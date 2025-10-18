@@ -1,0 +1,28 @@
+// this to configure merge with main in pipeline
+
+// https://github.com/your-username/your-repo.git
+// ```
+
+// **Credentials:** Select your GitHub credentials
+
+// **Click "Advanced" under Repository**, then add:
+
+// **Refspec:**
+// ```
+// +refs/pull/${ghprbPullId}/*:refs/remotes/origin/pr/${ghprbPullId}/*
+// ```
+
+// **Branches to build - Branch Specifier:**
+// ```
+// origin/pr/${ghprbPullId}/merge
+
+// GitHub Pull Request Builder Section:
+// Make sure these are set:
+
+// ✅ Use github hooks for build triggering - Checked
+// ✅ Build every pull request automatically - Checked
+
+// Whitelist Target Branches: (if you only want to test PRs to main)
+
+// Click "Add Branch"
+// Enter: main
