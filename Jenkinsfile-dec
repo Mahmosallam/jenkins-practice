@@ -41,7 +41,7 @@ pipeline {
                 echo "Deploying app to Kubernetes cluster..."
                 withCredentials([file(credentialsId: 'k8s', variable: 'kube')]){
                     sh '''
-                       kubectl config view --kubeconfig=$kube
+                       kubectl config view --kubeconfig=./k8s/config
                        kubectl apply -f ./k8s/deploy.yml --context sallam --kubeconfig k8s/config
                     '''
                 }}
