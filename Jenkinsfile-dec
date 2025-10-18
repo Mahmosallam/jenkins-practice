@@ -1,6 +1,6 @@
 pipeline {
-    // agent { label 'slave-1' } test from wwww
-    agent any
+    agent { label 'slave-1' }
+    //agent any
     tools {maven 'mvn398'}
 
     stages {
@@ -18,11 +18,24 @@ pipeline {
             }
         }
 
-        stage('run') {
+        stage('Dockerized the app') {
             steps {
-                echo "this is run stage"
-                sh 'java -jar target/my-app-1.0-SNAPSHOT.jar'
+                echo "this is dockerize stage"
+                sh 'docker build -t java-test -f Dockerfile .'
             }
+        }
+
+        stage('login and push') {
+            steps {
+                echo "this is login and push stage"
+                withCredentials([usernamePassword(credentialsId: 'docker-hup', passwordVariable: 'pass', usernameVariable: 'user')]) {
+                    sh 'docker login --username $user --password $pass'
+                    sh 'docker tag java-test $user/java-test'
+                    sh 'docker push $user/java-test'}
+    
+            }
+        }
+        
         }
     }
 
