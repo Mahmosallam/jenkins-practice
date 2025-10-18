@@ -36,6 +36,17 @@ pipeline {
                 }
             }
         }
+        stage('deploy to k8s') {
+            steps {
+                echo "Deploying app to Kubernetes cluster..."
+                withCredentials([file(credentialsId: 'k8s', variable: 'kube')])
+                    sh '''
+                       kubectl config view --kubeconfig=$kube
+                       kubectl apply -f ./k8s/deploy.yml --context sallam --kubeconfig k8s/config
+                    '''
+                }
+            }
+        }
     }
 
     post {
