@@ -1,6 +1,6 @@
 pipeline {
     agent { label 'slave-1' }
-    tools { maven 'mvn398' }
+    //tools { maven 'mvn398' }
 
     stages {
         stage('build') {
@@ -21,6 +21,22 @@ pipeline {
             steps {
                 echo "this is dockerize stage"
                 sh 'docker build -t java-test -f Dockerfile .'
+            }
+        }
+
+        stage('Scan Image with Trivy') {
+            steps {
+                echo "Scanning image for vulnerabilities..."
+                sh '''
+                    trivy image --format html -o trivy-report.html java-test
+                    trivy image --exit-code 1 --severity HIGH,CRITICAL java-test
+                '''
+            }
+            post {
+                always {
+                    echo "Archiving Trivy scan report..."
+                    archiveArtifacts artifacts: 'trivy-report.html', fingerprint: true
+                }
             }
         }
 
