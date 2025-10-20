@@ -9,10 +9,38 @@ pipeline {
             }
         }
         
-        stage('test') {
+        stage('unit test') {
             steps {
                 echo "this is test stage"
                 sh 'mvn test'
+            }
+        }
+
+         stage('OWASP Dependency Check') {
+            steps {
+                dependencyCheck additionalArguments: '--scan . --format HTML', odcInstallation: 'Default'
+            }
+            post {
+                always {
+                    dependencyCheckPublisher pattern: '**/dependency-check-report.html'
+                }
+            }
+        }
+
+        stage('SonarQube Analysis') {
+            steps {
+                script {
+                    def scannerHome = tool 'sonarqube'
+                    withSonarQubeEnv('sonarqube') {
+                        sh """
+                            ${scannerHome}/bin/sonar-scanner \
+                            -Dsonar.projectKey=my-app \
+                            -Dsonar.projectName="my-app" \
+                            -Dsonar.sources=. \
+                            -Dsonar.java.binaries=target
+                        """
+                    }
+                }
             }
         }
         
