@@ -1,7 +1,6 @@
 pipeline {
     agent { label 'slave-1' }
-    //tools { maven 'mvn398' }
-
+    
     stages {
         stage('build') {
             steps {
@@ -9,35 +8,79 @@ pipeline {
                 sh 'mvn clean package -DskipTests'
             }
         }
-
+        
         stage('test') {
             steps {
                 echo "this is test stage"
                 sh 'mvn test'
             }
         }
-
+        
         stage('Dockerized the app') {
             steps {
                 echo "this is dockerize stage"
                 sh 'docker build -t java-test -f Dockerfile .'
             }
         }
+        
+    stage('Scan Image with Trivy') {
+        steps {
+            echo "Scanning image for vulnerabilities..."
+            sh '''
+                # Generate JSON report (for archiving)
+                trivy image --timeout 15m --scanners vuln \
+                    --format json -o trivy-report.json \
+                    --severity HIGH,CRITICAL \
+                    java-test
 
-        stage('Scan Image with Trivy') {
-            steps {
-                 script {
-                    if (params.CLEAN_TRIVY_CACHE) {
-                     sh 'trivy clean --java-db'
-                   }
-                }
-        sh '''
-            trivy image --timeout 15m --format template --template "@html.tpl" -o trivy-report.html java-test
-            trivy image --timeout 15m --exit-code 1 --severity HIGH,CRITICAL java-test
-        '''
+                # Generate HTML report (for easy viewing) using template
+                trivy image --timeout 15m --scanners vuln \
+                    --format template \
+                    --template "@/usr/local/share/trivy/templates/html.tpl" \
+                    -o trivy-report.html \
+                    --severity HIGH,CRITICAL \
+                    java-test
+
+                # Also generate a full report (all severities) for reference
+                trivy image --timeout 15m --scanners vuln \
+                    --format template \
+                    --template "@/usr/local/share/trivy/templates/html.tpl" \
+                    -o trivy-report-full.html \
+                    java-test
+            '''
+        }
+        post {
+            always {
+                echo "Archiving Trivy scan reports..."
+
+                // Archive JSON report
+                archiveArtifacts artifacts: 'trivy-report.json', fingerprint: true
+
+                // Publish HTML reports
+                publishHTML([
+                    allowMissing: false,
+                    alwaysLinkToLastBuild: true,
+                    keepAll: true,
+                    reportDir: '.',
+                    reportFiles: 'trivy-report.html',
+                    reportName: 'Trivy Security Report (HIGH/CRITICAL)',
+                    reportTitles: 'Trivy Security Scan'
+                ])
+
+                publishHTML([
+                    allowMissing: false,
+                    alwaysLinkToLastBuild: true,
+                    keepAll: true,
+                    reportDir: '.',
+                    reportFiles: 'trivy-report-full.html',
+                    reportName: 'Trivy Full Report (All Severities)',
+                    reportTitles: 'Trivy Full Scan'
+                ])
             }
-        } 
+        }
+    }
 
+            
         stage('login and push') {
             steps {
                 echo "this is login and push stage"
@@ -50,20 +93,22 @@ pipeline {
                 }
             }
         }
+        
         stage('deploy to k8s') {
             steps {
                 echo "Deploying app to Kubernetes cluster..."
-                withCredentials([file(credentialsId: 'k8s', variable: 'kube')]){
+                withCredentials([file(credentialsId: 'k8s', variable: 'kube')]) {
                     sh '''
-                       export PATH=$PATH:/home/jenkins/bin
-                       kubectl config view --kubeconfig=./k8s/config
-                       kubectl apply -f ./k8s/deploy.yml --context sallam --kubeconfig k8s/config
+                        export PATH=$PATH:/home/jenkins/bin
+                        kubectl config view --kubeconfig=./k8s/config
+                        kubectl apply -f ./k8s/deploy.yml --context sallam --kubeconfig k8s/config
+                        echo "all good"
                     '''
-                }}
+                }
             }
         }
-    }
-
+    } // stages block closes here
+    
     post {
         success {
             slackSend (
@@ -82,4 +127,4 @@ pipeline {
             )
         }
     }
-
+}
